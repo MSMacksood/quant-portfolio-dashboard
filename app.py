@@ -69,7 +69,28 @@ def load_data():
 # --- BUILD THE UI ---
 try:
     with st.spinner('Connecting to Azure SQL Data Warehouse...'):
+        # Load data from Azure SQL
         df, df_thesis = load_data()
+
+        # ==========================================
+        # 🚨 START LINUX ODBC SANITIZER 🚨
+        # Force Linux to parse data types exactly like Windows
+
+        # 1. Force Dates to be actual Datetime objects
+        if 'Date' in df.columns:
+            df['Date'] = pd.to_datetime(df['Date'])
+
+        # 2. Strip hidden spaces from Tickers (fixes selection box issues)
+        if 'Ticker' in df.columns:
+            df['Ticker'] = df['Ticker'].astype(str).str.strip()
+
+        # 3. Force all price/metric columns to be Floats, not strings
+        for col in df.columns:
+            if col not in ['Date', 'Ticker']:
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+
+        # 🚨 END LINUX ODBC SANITIZER 🚨
+        # ==========================================
 
     df['Regime'] = df['Regime'].astype(int)
     regime_labels = {
@@ -132,7 +153,7 @@ try:
         fig2 = px.line(df_plot, x="Date", y=selected_clean)
         fig2.update_layout(height=450, margin=dict(l=0, r=0, t=10, b=0), legend_title_text='Ticker', xaxis_title="",
                            yaxis_title="Normalized Price", hovermode="x unified")
-        st.plotly_chart(fig2, use_container_width=True)
+        st.plotly_chart(fig2)
 
     st.markdown("---")
 
