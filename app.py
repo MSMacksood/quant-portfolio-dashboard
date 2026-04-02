@@ -5,8 +5,9 @@ import pyodbc
 from sqlalchemy import create_engine, text
 from azure.identity import DefaultAzureCredential
 import plotly.express as px
-import re
 import json
+import time
+from sqlalchemy.exc import OperationalError
 
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="AI Sector Rotation", page_icon="🤖", layout="wide")
@@ -15,35 +16,55 @@ st.markdown("Live Agentic Sector Rotation based on K-Means Macro Clustering")
 
 
 # --- SECURE SQL CONNECTION ---
-@st.cache_data(ttl=3600)  # Caches data for 1 hour to save database compute
+@st.cache_data(ttl=3600)  # Caches data for 1 hour
 def load_data():
     server = 'quant-server-123.database.windows.net'  # UPDATE THIS
     database = 'trading-db'  # UPDATE THIS
     driver = '{ODBC Driver 17 for SQL Server}'
 
-    # Grabs the token securely without passwords
+    # 1. Grab the token securely
     credential = DefaultAzureCredential()
     token_object = credential.get_token("https://database.windows.net/.default")
     token_as_bytes = bytes(token_object.token, "UTF-8")
     encoded_token = token_as_bytes.decode("UTF-8").encode("UTF-16-LE")
     token_struct = struct.pack(f"<I{len(encoded_token)}s", len(encoded_token), encoded_token)
 
-    conn_str = f"DRIVER={driver};SERVER=tcp:{server},1433;DATABASE={database};Encrypt=yes;TrustServerCertificate=no;"
+    # 2. Add 'Connection Timeout=30;' to give the initial knock a bit more time
+    conn_str = f"DRIVER={driver};SERVER=tcp:{server},1433;DATABASE={database};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
     SQL_COPT_SS_ACCESS_TOKEN = 1256
 
     def get_conn():
         return pyodbc.connect(conn_str, attrs_before={SQL_COPT_SS_ACCESS_TOKEN: token_struct})
 
     engine = create_engine("mssql+pyodbc://", creator=get_conn)
-    with engine.connect() as conn:
-        df = pd.read_sql(text("SELECT * FROM ProcessedMarketData ORDER BY Date ASC"), conn)
-        try:
-            df_thesis = pd.read_sql(text("SELECT * FROM AIThesis ORDER BY Date ASC"), conn)
-        except:
-            # Fallback if the table doesn't exist yet
-            df_thesis = pd.DataFrame({'Date': [pd.Timestamp.today()], 'Thesis': ["Thesis not found."]})
 
-    return df, df_thesis
+    # 3. ROBUST RETRY LOGIC FOR COLD STARTS
+    max_retries = 3
+    retry_delay = 15  # seconds to wait while the database wakes up
+
+    for attempt in range(max_retries):
+        try:
+            with engine.connect() as conn:
+                # If we get inside this block, the database is awake!
+                df = pd.read_sql(text("SELECT * FROM ProcessedMarketData ORDER BY Date ASC"), conn)
+
+                try:
+                    df_thesis = pd.read_sql(text("SELECT * FROM AIThesis ORDER BY Date ASC"), conn)
+                except:
+                    # Fallback if the table doesn't exist yet
+                    df_thesis = pd.DataFrame({'Date': [pd.Timestamp.today()], 'Thesis': ["Thesis not found."]})
+
+                return df, df_thesis
+
+        except OperationalError as e:
+            # Catch the timeout error specifically
+            if attempt < max_retries - 1:
+                print(
+                    f"Database sleeping or unavailable. Retrying in {retry_delay} seconds... (Attempt {attempt + 1} of {max_retries})")
+                time.sleep(retry_delay)
+            else:
+                # If we fail 3 times, it's a real error (like a bad IP or password), so we let it crash and show the user
+                raise Exception(f"Database failed to respond after {max_retries} attempts. Original Error: {e}")
 
 # --- BUILD THE UI ---
 try:
@@ -52,9 +73,9 @@ try:
 
     df['Regime'] = df['Regime'].astype(int)
     regime_labels = {
-        0: "Regime 0: Sideways Chop ⚖️",
-        1: "Regime 1: Risk-On Bull 🐂",
-        2: "Regime 2: Risk-Off Shock 🐻"
+        0: "Sideways Chop ⚖️",
+        1: "Risk-On Bull 🐂",
+        2: "Risk-Off Shock 🐻"
     }
     df['Regime_Name'] = df['Regime'].map(regime_labels)
     latest = df.iloc[-1]
