@@ -106,7 +106,41 @@ try:
     # --- DAILY MARKET SUMMARY ---
     st.markdown("### 📊 Daily Market Summary")
     m1, m2, m3, m4 = st.columns(4)
-    m1.metric("Current Market Regime", regime_labels[latest['Regime']])
+
+    # 1. Custom HTML/CSS for the Vertical Regime Display
+    current_regime = int(latest['Regime'])
+
+    # --- INSERT MOCK DATA HERE FOR LOCAL TESTING ---
+    # current_regime = 1  # Test 1 for Bull, 2 for Shock, 0 for Chop
+
+    # CSS styling for active/inactive states and theme-agnostic colors
+    regime_html = """
+        <style>
+        .regime-label { font-size: 0.85rem; opacity: 0.7; margin-bottom: 8px; }
+        .regime-item { padding: 6px 12px; margin-bottom: 4px; border-radius: 6px; font-size: 0.95rem; transition: all 0.3s ease; }
+        .regime-item.inactive { opacity: 0.3; filter: grayscale(100%); }
+        .regime-item.active { font-weight: 700; font-size: 1.3rem; opacity: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+        /* Dynamic Colors based on Regime */
+        .r-0.active { background-color: rgba(243, 156, 18, 0.15); border-left: 4px solid #f39c12; } /* Chop: Orange/Neutral */
+        .r-1.active { background-color: rgba(46, 204, 113, 0.15); border-left: 4px solid #2ecc71; } /* Bull: Green */
+        .r-2.active { background-color: rgba(231, 76, 60, 0.15); border-left: 4px solid #e74c3c; }  /* Shock: Red */
+        </style>
+        <div>
+            <div class="regime-label">Current Market Regime</div>
+        """
+
+    # 2. Loop through all regimes and apply the correct CSS class
+    for r_idx, r_name in regime_labels.items():
+        if r_idx == current_regime:
+            regime_html += f'<div class="regime-item active r-{r_idx}">{r_name}</div>'
+        else:
+            regime_html += f'<div class="regime-item inactive">{r_name}</div>'
+
+    regime_html += "</div>"
+
+    # 3. Render the custom HTML in Column 1, and standard metrics in the others
+    m1.markdown(regime_html, unsafe_allow_html=True)
     m2.metric("S&P 500 Daily Return", f"{round(latest['SPY_Daily_Return'] * 100, 2)}%")
     m3.metric("20-Day Volatility", round(latest['SPY_Volatility_20d'], 4))
     m4.metric("Macro CPI Level", round(latest['CPI'], 2))
