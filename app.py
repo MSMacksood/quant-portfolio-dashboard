@@ -344,5 +344,72 @@ try:
             '''
         st.markdown(risk_html, unsafe_allow_html=True)
 
+        # --- FOOTER: TECHNOLOGY STACK ---
+        st.markdown("<br><br>", unsafe_allow_html=True)
+        st.markdown("---")
+
+        st.markdown(
+            "<p style='text-align: center; opacity: 0.7; font-size: 0.9em; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 25px;'>SYSTEM ARCHITECTURE & TECHNOLOGY STACK</p>",
+            unsafe_allow_html=True)
+
+
+        # Helper function to generate clean, clickable SVG badges
+        def tech_badge(name, url, icon_url):
+            return f"""
+                <a href="{url}" target="_blank" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; margin-bottom: 12px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                    <img src="{icon_url}" width="28" height="28" style="object-fit: contain;">
+                    <span style="font-size: 0.95em; font-weight: 500; opacity: 0.5;">{name}</span>
+                </a>
+                """
+
+
+        f1, f2, f3, f4 = st.columns(4)
+        # Reusable style for the column headers
+        header_style = "font-weight: 600; font-size: 1.05em; opacity: 0.6; margin-bottom: 15px;"
+
+        with f1:
+            st.markdown(f"<p style='{header_style}'>Frontend & Core</p>", unsafe_allow_html=True)
+            st.markdown(
+                tech_badge("Python 3.11", "https://www.python.org/", "https://icon.icepanel.io/Technology/svg/Python.svg"),
+                unsafe_allow_html=True)
+            st.markdown(
+                tech_badge("Streamlit", "https://streamlit.io/", "https://icon.icepanel.io/Technology/svg/Streamlit.svg"),
+                unsafe_allow_html=True)
+            st.markdown(tech_badge("Plotly", "https://plotly.com/python/", "https://icon.icepanel.io/Technology/svg/Ploty.svg"),
+                        unsafe_allow_html=True)
+
+        with f2:
+            st.markdown(f"<p style='{header_style}'>AI & Analytics</p>", unsafe_allow_html=True)
+            st.markdown(tech_badge("Google Gemini", "https://deepmind.google/technologies/gemini/",
+                                   "https://cdn.simpleicons.org/googlegemini/8E75B2"), unsafe_allow_html=True)
+            st.markdown(tech_badge("Scikit-Learn", "https://scikit-learn.org/",
+                                   "https://scikit-learn.org/stable/_static/scikit-learn-logo-without-subtitle.svg"), unsafe_allow_html=True)
+            st.markdown(tech_badge("Pandas", "https://pandas.pydata.org/", "https://icon.icepanel.io/Technology/svg/Pandas.svg"),
+                        unsafe_allow_html=True)
+
+        with f3:
+            st.markdown(f"<p style='{header_style}'>Cloud Infrastructure</p>", unsafe_allow_html=True)
+            st.markdown(tech_badge("Azure App Service", "https://azure.microsoft.com/en-us/products/app-service",
+                                   "https://symbols.getvecta.com/stencil_28/5_app-service-web-app.dbdab14e4a.svg"), unsafe_allow_html=True)
+            st.markdown(
+                tech_badge("Azure SQL Database", "https://azure.microsoft.com/en-us/products/azure-sql/database",
+                           "https://upload.wikimedia.org/wikipedia/commons/0/03/Azure_SQL_cloud_icon.svg"), unsafe_allow_html=True)
+            st.markdown(tech_badge("GitHub Actions", "https://github.com/features/actions",
+                                   "https://icon.icepanel.io/Technology/svg/GitHub-Actions.svg"), unsafe_allow_html=True)
+
+        with f4:
+            st.markdown(f"<p style='{header_style}'>Data Pipelines & APIs</p>", unsafe_allow_html=True)
+            st.markdown(
+                tech_badge("Yahoo Finance", "https://finance.yahoo.com/", "https://static.wikia.nocookie.net/logopedia/images/0/03/Yahoo%21_Finance_2019.svg"),
+                unsafe_allow_html=True)
+            # Using a highly recognizable open-data/bank symbol for the Federal Reserve API
+            st.markdown(tech_badge("FRED API", "https://fred.stlouisfed.org/docs/api/fred/",
+                                   "https://fred.stlouisfed.org/images/FRED_Logo_Home_Page.svg"),
+                        unsafe_allow_html=True)
+
+        st.markdown(
+            "<p style='text-align: center; opacity: 0.5; font-size: 0.8em; margin-top: 30px;'>Developed by MSM Macksood | MSc in Data Science</p>",
+            unsafe_allow_html=True)
+
 except Exception as e:
     st.error(f"Failed to load data. Ensure your IP is whitelisted. Error: {e}")
