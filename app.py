@@ -5,6 +5,8 @@ import pyodbc
 from sqlalchemy import create_engine, text
 from azure.identity import DefaultAzureCredential
 import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import json
 import time
 from sqlalchemy.exc import OperationalError
@@ -156,6 +158,77 @@ try:
         st.plotly_chart(fig2)
 
     st.markdown("---")
+
+    # --- 2.5 TECHNICAL HEALTH INDICATORS (EXPANDER) ---
+    with st.expander("🔍 View Technical Health Indicators (SPY Proxy)", expanded=False):
+
+        # 1. On-the-fly Quantitative Math
+        df_tech = df[['Date', 'Close_SPY']].copy()
+        df_tech.set_index('Date', inplace=True)
+
+        # Moving Averages
+        df_tech['SMA_50'] = df_tech['Close_SPY'].rolling(window=50).mean()
+        df_tech['SMA_200'] = df_tech['Close_SPY'].rolling(window=200).mean()
+
+        # MACD (12-day EMA - 26-day EMA)
+        ema12 = df_tech['Close_SPY'].ewm(span=12, adjust=False).mean()
+        ema26 = df_tech['Close_SPY'].ewm(span=26, adjust=False).mean()
+        df_tech['MACD'] = ema12 - ema26
+        df_tech['Signal'] = df_tech['MACD'].ewm(span=9, adjust=False).mean()
+
+        # RSI (14-Day Wilder's Smoothing)
+        delta = df_tech['Close_SPY'].diff()
+        gain = delta.where(delta > 0, 0)
+        loss = -delta.where(delta < 0, 0)
+        avg_gain = gain.ewm(alpha=1 / 14, adjust=False).mean()
+        avg_loss = loss.ewm(alpha=1 / 14, adjust=False).mean()
+        rs = avg_gain / avg_loss
+        df_tech['RSI'] = 100 - (100 / (1 + rs))
+
+        df_tech.reset_index(inplace=True)
+
+        # Filter for recent history to keep charts readable (last 2 years ~ 500 days)
+        df_plot_tech = df_tech.tail(500)
+
+        # 2. Build the Stacked Plotly Figure
+        fig_tech = make_subplots(rows=3, cols=1, shared_xaxes=True,
+                                 vertical_spacing=0.04,
+                                 row_heights=[0.5, 0.25, 0.25])
+
+        # Top Chart: Price & MAs
+        fig_tech.add_trace(go.Scatter(x=df_plot_tech['Date'], y=df_plot_tech['Close_SPY'], name='SPY Close',
+                                      line=dict(color='white' if st.get_option("theme.base") == "dark" else 'black',
+                                                width=1.5)), row=1, col=1)
+        fig_tech.add_trace(go.Scatter(x=df_plot_tech['Date'], y=df_plot_tech['SMA_50'], name='50-Day SMA',
+                                      line=dict(color='#3498db', dash='dash')), row=1, col=1)
+        fig_tech.add_trace(go.Scatter(x=df_plot_tech['Date'], y=df_plot_tech['SMA_200'], name='200-Day SMA',
+                                      line=dict(color='#e74c3c', dash='dash')), row=1, col=1)
+
+        # Middle Chart: MACD
+        fig_tech.add_trace(
+            go.Scatter(x=df_plot_tech['Date'], y=df_plot_tech['MACD'], name='MACD', line=dict(color='#9b59b6')), row=2,
+            col=1)
+        fig_tech.add_trace(go.Scatter(x=df_plot_tech['Date'], y=df_plot_tech['Signal'], name='Signal Line',
+                                      line=dict(color='#f39c12')), row=2, col=1)
+        fig_tech.add_hline(y=0, line_dash="dot", line_color="gray", row=2, col=1)
+
+        # Bottom Chart: RSI
+        fig_tech.add_trace(
+            go.Scatter(x=df_plot_tech['Date'], y=df_plot_tech['RSI'], name='RSI (14)', line=dict(color='#2ecc71')),
+            row=3, col=1)
+        fig_tech.add_hline(y=70, line_dash="dash", line_color="#e74c3c", row=3, col=1, annotation_text="Overbought (70)", annotation_position="top left")
+        fig_tech.add_hline(y=30, line_dash="dash", line_color="#3498db", row=3, col=1, annotation_text="Oversold (30)", annotation_position="bottom left")
+
+        # Clean Layout
+        fig_tech.update_layout(height=650, margin=dict(l=0, r=0, t=10, b=0),
+                               hovermode="x unified", showlegend=True
+                               )
+        fig_tech.update_yaxes(title_text="Price ($)", row=1, col=1)
+        fig_tech.update_yaxes(title_text="MACD", row=2, col=1)
+        fig_tech.update_yaxes(title_text="RSI", range=[0, 100], row=3, col=1)
+
+        st.plotly_chart(fig_tech, use_container_width=True)
+        st.markdown("---")
 
     # --- 3. AI PORTFOLIO MANAGER SIGNALS ---
     st.markdown("### 🤖 Agentic Decision Engine")
