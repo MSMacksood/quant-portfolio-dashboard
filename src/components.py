@@ -37,10 +37,22 @@ def render_header():
 
 def render_status_badges(now_est, market_cutoff, thesis_date):
     st.markdown(f"""
-    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
-        <span style="background-color: rgba(128,128,128,0.1); padding: 4px 12px; border-radius: 15px; font-size: 0.85rem; color: gray;">🕒 <b>Server:</b> {now_est}</span>
-        <span style="background-color: rgba(52, 152, 219, 0.1); padding: 4px 12px; border-radius: 15px; font-size: 0.85rem; color: #3498db;">📊 <b>Market Data:</b> {market_cutoff}</span>
-        <span style="background-color: rgba(155, 89, 182, 0.1); padding: 4px 12px; border-radius: 15px; font-size: 0.85rem; color: #9b59b6;">🧠 <b>AI Sync:</b> {thesis_date}</span>
+    <div class="status-container">
+        <div class="status-card">
+            <span class="status-icon">🕒</span>
+            <span class="status-label">Server</span>
+            <span class="status-value">{now_est}</span>
+        </div>
+        <div class="status-card">
+            <span class="status-icon">📊</span>
+            <span class="status-label">Market Data</span>
+            <span class="status-value">{market_cutoff}</span>
+        </div>
+        <div class="status-card">
+            <span class="status-icon">🧠</span>
+            <span class="status-label">AI Sync</span>
+            <span class="status-value">{thesis_date}</span>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -147,7 +159,7 @@ def render_footer():
 
     with col_tech:
         st.markdown(
-            "<div style='text-align: left; opacity: 0.4; font-size: 0.9em; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 25px;'>SYSTEM ARCHITECTURE & TECHNOLOGY STACK</div>",
+            "<div style='text-align: left; opacity: 0.4; font-size: 0.9em; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 25px;'>DEVELOPED USING...</div>",
             unsafe_allow_html=True)
 
         # Flatted to a single line inside a strict <div> container
@@ -199,6 +211,12 @@ def render_footer():
             st.markdown(tech_badge("FRED API", "https://fred.stlouisfed.org/docs/api/fred/",
                                    "https://img.icons8.com/color/48/000000/line-chart.png"), unsafe_allow_html=True)
 
-    st.markdown(
-        "<p style='text-align: center; opacity: 0.5; font-size: 0.8em; margin-top: 50px;'>Developed by MSM Macksood | MSc in Data Science | Coventry University</p>",
-        unsafe_allow_html=True)
+        st.markdown("""
+            <div style='text-align: center; margin-top: 50px;'>
+                <p style='opacity: 0.5; font-size: 0.8em; margin-bottom: 8px;'>Developed by MSM Macksood | MSc in Data Science | Coventry University</p>
+                <a href="https://github.com/MSMacksood/quant-portfolio-dashboard" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: inherit; opacity: 0.5; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='0.5'">
+                    <img src="https://cdn.simpleicons.org/github/gray" width="18" height="18" alt="GitHub">
+                    <span style="font-size: 0.85em; font-weight: 500;">View Source Code on GitHub</span>
+                </a>
+            </div>
+        """, unsafe_allow_html=True)

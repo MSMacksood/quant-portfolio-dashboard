@@ -9,14 +9,14 @@ components.render_header()
 try:
     # --- 2. DATA LOADING & PREP ---
     with st.status("Initializing AI Quant Engine...", expanded=True) as status:
-        st.write("🔐 Authenticating with Azure Active Directory...")
+        st.write("🔐 Authenticating and Loading Data...")
         df_raw, df_thesis = data_handler.load_data()
 
         st.write("📊 Processing Market Data & Technicals...")
         df = data_handler.sanitize_data(df_raw)
 
         st.write("🧠 Syncing Agentic Sector Signals...")
-        status.update(label="System Online. Dashboard Ready.", state="complete", expanded=False)
+        status.update(label="System Online. Dashboard Ready.", state="complete", expanded=False, )
 
     # DYNAMIC TIMESTAMPS
     now_est = pd.Timestamp.now('US/Eastern').strftime('%B %d, %Y | %I:%M %p EST')
