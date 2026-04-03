@@ -19,13 +19,13 @@ try:
         status.update(label="System Online. Dashboard Ready.", state="complete", expanded=False, )
 
     # DYNAMIC TIMESTAMPS
-    now_est = pd.Timestamp.now('US/Eastern').strftime('%B %d, %Y | %I:%M %p EST')
+    server_utc = pd.Timestamp.now('UTC').strftime('%B %d, %Y | %I:%M %p UTC')
     market_cutoff = df['Date'].iloc[-1].strftime('%B %d, %Y')
     try:
         thesis_date = pd.to_datetime(df_thesis.iloc[-1]['Date']).strftime('%B %d, %Y')
     except:
         thesis_date = market_cutoff
-    components.render_status_badges(now_est, market_cutoff, thesis_date)
+    components.render_status_badges(server_utc, market_cutoff, thesis_date)
 
     # REGIME SETUP
     df['Regime'] = df['Regime'].astype(int)

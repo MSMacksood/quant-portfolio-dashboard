@@ -35,13 +35,13 @@ def render_header():
     """, unsafe_allow_html=True)
 
 
-def render_status_badges(now_est, market_cutoff, thesis_date):
+def render_status_badges(server_utc, market_cutoff, thesis_date):
     st.markdown(f"""
     <div class="status-container">
         <div class="status-card">
             <span class="status-icon">🕒</span>
             <span class="status-label">Server</span>
-            <span class="status-value">{now_est}</span>
+            <span class="status-value">{server_utc}</span>
         </div>
         <div class="status-card">
             <span class="status-icon">📊</span>
