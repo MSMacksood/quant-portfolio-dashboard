@@ -1,0 +1,38 @@
+/* --- src/style.css --- */
+
+/* 1. Banner Styles */
+.quant-banner { background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); padding: 30px; border-radius: 12px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
+.quant-title { margin: 0; font-size: 2.4rem; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; }
+.quant-subtitle { font-size: 1.1rem; font-weight: 600; opacity: 0.40; margin-top: 8px; margin-bottom: 0; }
+
+/* 2. Regime Vertical Indicator Styles */
+.regime-label { font-size: 0.85rem; opacity: 0.7; margin-bottom: 8px; }
+.regime-item { padding: 6px 12px; margin-bottom: 4px; border-radius: 6px; font-size: 0.95rem; transition: all 0.3s ease; }
+.regime-item.inactive { opacity: 0.3; filter: grayscale(100%); }
+.regime-item.active { font-weight: 700; font-size: 1.3rem; opacity: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.r-0.active { background-color: rgba(243, 156, 18, 0.15); border-left: 4px solid #f39c12; } /* Chop: Orange/Neutral */
+.r-1.active { background-color: rgba(46, 204, 113, 0.15); border-left: 4px solid #2ecc71; } /* Bull: Green */
+.r-2.active { background-color: rgba(231, 76, 60, 0.15); border-left: 4px solid #e74c3c; }  /* Shock: Red */
+
+/* 3. KPI Metric Cards */
+.metric-card { background-color: var(--secondary-background-color); border: 1px solid rgba(128, 128, 128, 0.2); border-radius: 8px; padding: 16px 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); display: flex; flex-direction: column; justify-content: center; transition: transform 0.2s ease, box-shadow 0.2s ease; height: 100%; }
+.metric-card:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.08); border-color: rgba(128, 128, 128, 0.4); }
+.metric-label { font-size: 0.85rem; opacity: 0.6; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.metric-value { font-size: 1.9rem; font-weight: 700; margin: 0; line-height: 1.2; }
+.metric-sub { font-size: 0.75rem; opacity: 0.5; margin-top: 4px; font-weight: 500; }
+
+/* 4. Agentic Engine Cards */
+.macro-box { background-color: var(--secondary-background-color); border-left: 6px solid #636efa; border-radius: 10px; padding: 24px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+.macro-header { font-size: 1.25em; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+.macro-content { font-size: 1.05em; line-height: 1.6; opacity: 0.9; }
+.modern-card { background-color: var(--secondary-background-color); border: 1px solid rgba(128, 128, 128, 0.2); border-radius: 10px; padding: 18px; margin-bottom: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: transform 0.2s ease; }
+.modern-card:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); border-color: rgba(128, 128, 128, 0.4); }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.card-title { font-weight: 600; font-size: 1.15em; display: flex; align-items: center; gap: 8px; }
+.sub-text { opacity: 0.6; font-size: 0.85em; font-weight: 400; margin-left: 6px; }
+.badge { padding: 4px 14px; border-radius: 20px; font-size: 0.85em; font-weight: 700; letter-spacing: 0.5px; }
+.badge-buy { background-color: rgba(39, 174, 96, 0.15); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.5); }
+.badge-hold { background-color: rgba(243, 156, 18, 0.15); color: #f1c40f; border: 1px solid rgba(241, 196, 15, 0.5); }
+.badge-sell { background-color: rgba(231, 76, 60, 0.15); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.5); }
+.badge-risk { background-color: rgba(52, 152, 219, 0.15); color: #3498db; border: 1px solid rgba(52, 152, 219, 0.5); }
+.card-body { font-size: 0.95em; opacity: 0.85; line-height: 1.5; }
