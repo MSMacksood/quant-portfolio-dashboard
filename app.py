@@ -14,12 +14,48 @@ from sqlalchemy.exc import OperationalError
 # --- 1. PAGE CONFIG & HEADERS ---
 st.set_page_config(page_title="S&P 500 AI Rotation", page_icon="🤖", layout="wide")
 
-st.title("🤖 AI Quant Portfolio Dashboard: S&P 500 Sector Rotation")
-st.markdown("**Live Agentic Sector Rotation based on K-Means Macro Clustering**")
+st.markdown("""
+<style>
+.quant-banner {
+    background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+    padding: 30px;
+    border-radius: 12px;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+.quant-title {
+    margin: 0;
+    font-size: 2.4rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center; /* Ensures the SVG and text align perfectly */
+}
+.quant-subtitle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    opacity: 0.40;
+    margin-top: 8px;
+    margin-bottom: 0;
+}
+</style>
+
+<div class="quant-banner">
+    <h1 class="quant-title">
+        <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 14px;">
+          <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+          <polyline points="16 7 22 7 22 13"></polyline>
+        </svg>
+        AI Quant Portfolio Dashboard
+    </h1>
+    <p class="quant-subtitle">Live Agentic S&P 500 Sector Rotation Insights based on K-Means Macro Clustering</p>
+</div>
+""", unsafe_allow_html=True)
 
 
 # --- 2. SECURE SQL CONNECTION ---
-@st.cache_data(ttl=3600)  # Caches data for 1 hour
+@st.cache_data(ttl=3600, show_spinner=False)  # Added show_spinner=False, Caches data for 1 hour
 def load_data():
     server = 'quant-server-123.database.windows.net'  # UPDATE THIS
     database = 'trading-db'  # UPDATE THIS
@@ -60,9 +96,13 @@ def load_data():
 
 # --- 3. BUILD THE UI ---
 try:
-    with st.spinner('Connecting to Azure SQL Data Warehouse & Syncing AI...'):
+    # Replace st.spinner with st.status for a modern boot-up sequence
+    with st.status("Initializing AI Quant Engine...", expanded=True) as status:
+
+        st.write("🔐 Authenticating with Azure Active Directory...")
         df, df_thesis = load_data()
 
+        st.write("📊 Processing Market Data & Technicals...")
         # --- LINUX ODBC SANITIZER ---
         if 'Date' in df.columns:
             df['Date'] = pd.to_datetime(df['Date'])
@@ -72,6 +112,11 @@ try:
             if col not in ['Date', 'Ticker']:
                 df[col] = pd.to_numeric(df[col], errors='coerce')
 
+        st.write("🧠 Syncing Agentic Sector Signals...")
+
+        # When finished, change the status box to a green success state and collapse it
+        status.update(label="System Online. Dashboard Ready.", state="complete", expanded=False)
+
     # --- DYNAMIC TIMESTAMPS ---
     now_est = pd.Timestamp.now('US/Eastern').strftime('%B %d, %Y | %I:%M %p EST')
     market_cutoff = df['Date'].iloc[-1].strftime('%B %d, %Y')
@@ -80,9 +125,13 @@ try:
     except:
         thesis_date = market_cutoff
 
-    st.caption(
-        f"🕒 **Live Server Time:** {now_est} &nbsp;&nbsp;|&nbsp;&nbsp; 📊 **Market Data Cutoff:** {market_cutoff} &nbsp;&nbsp;|&nbsp;&nbsp; 🧠 **Agentic AI Sync:** {thesis_date}")
-    st.write("")
+    st.markdown(f"""
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+        <span style="background-color: rgba(128,128,128,0.1); padding: 4px 12px; border-radius: 15px; font-size: 0.85rem; color: gray;">🕒 <b>Server:</b> {now_est}</span>
+        <span style="background-color: rgba(52, 152, 219, 0.1); padding: 4px 12px; border-radius: 15px; font-size: 0.85rem; color: #3498db;">📊 <b>Market Data:</b> {market_cutoff}</span>
+        <span style="background-color: rgba(155, 89, 182, 0.1); padding: 4px 12px; border-radius: 15px; font-size: 0.85rem; color: #9b59b6;">🧠 <b>AI Sync:</b> {thesis_date}</span>
+    </div>
+    """, unsafe_allow_html=True)
 
     # --- REGIME MAPPING ---
     df['Regime'] = df['Regime'].astype(int)

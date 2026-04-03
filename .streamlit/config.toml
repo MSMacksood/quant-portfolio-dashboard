@@ -1,0 +1,6 @@
+[theme]
+primaryColor="#3498db"
+backgroundColor="#f8f9fa"  # A very soft, cool off-white/gray
+secondaryBackgroundColor="#ffffff" # Keeps your cards bright white
+textColor="#2c3e50"
+font="sans serif"
